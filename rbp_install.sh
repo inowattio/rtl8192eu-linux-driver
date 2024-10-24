@@ -1,4 +1,4 @@
-sudo apt-get install git raspberrypi-kernel-headers build-essential dkms
+sudo apt-get install git raspberrypi-kernel-headers build-essential dkms -y
 sudo dkms add .
 sudo dkms install rtl8192eu/1.0
 echo "blacklist rtl8xxxu" | sudo tee /etc/modprobe.d/rtl8xxxu.conf
