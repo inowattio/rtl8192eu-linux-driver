@@ -42,7 +42,7 @@ CONFIG_GSPI_HCI = n
 CONFIG_MP_INCLUDED = y
 # Exposes power saving features to the system if the wireless adapter supports them.
 # Say "y" here if unsure.
-CONFIG_POWER_SAVING = y
+CONFIG_POWER_SAVING = n
 # Automatically suspends the wireless adapter during inactivity.
 # Say "n" here if unsure. It may save a small amount of power, while introducing instability.
 CONFIG_USB_AUTOSUSPEND = n
@@ -117,9 +117,9 @@ CONFIG_RTW_SDIO_PM_KEEP_POWER = y
 ###################### MP HW TX MODE FOR VHT #######################
 CONFIG_MP_VHT_HW_TX_MODE = n
 ###################### Platform Related #######################
-CONFIG_PLATFORM_ARM_RPI = n
+CONFIG_PLATFORM_ARM_RPI = y
 CONFIG_PLATFORM_ARM_AARCH64 = n
-CONFIG_PLATFORM_I386_PC = y
+CONFIG_PLATFORM_I386_PC = n
 CONFIG_PLATFORM_ANDROID_X86 = n
 CONFIG_PLATFORM_ANDROID_INTEL_X86 = n
 CONFIG_PLATFORM_JB_X86 = n
