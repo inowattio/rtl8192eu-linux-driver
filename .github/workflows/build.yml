@@ -23,27 +23,14 @@ jobs:
           echo ::set-output name=matrix::${VERSIONSARRAY}
   build:
     needs: commontasks
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         kernel_version: ${{fromJson(needs.commontasks.outputs.matrix)}}
-        gcc_version: [9, 10, 12]
         # kernel_version: [6.1-rc1]
     steps:
-      - name: Check Versions
-        id: check_version
-        shell: bash {0}
-        run: |
-          echo ::set-output name=skip_build::False
-          dpkg --compare-versions "${{matrix.kernel_version}}" "ge" "5.15"
-          if [ $? -eq "0" ] && [ ${{matrix.gcc_version}} -lt 12 ];
-          then
-            echo "GCC version not compatible"
-            echo ::set-output name=skip_build::True
-          fi
       - name: Download kernel packages
-        if: steps.check_version.outputs.skip_build == 'False'
         run: |
           KERNEL_URL=https://kernel.ubuntu.com/~kernel-ppa/mainline/
           KERNEL_URL_DETAILS=$(wget --quiet -O - ${KERNEL_URL}v${{matrix.kernel_version}}/ | grep -A8 "Build for amd64\|Test amd64")
@@ -53,18 +40,13 @@ jobs:
           [  -z "$AMD64_DEB" ] && exit 2
           wget -nv ${KERNEL_URL}v${{matrix.kernel_version}}/$AMD64_DEB
           wget -nv ${KERNEL_URL}v${{matrix.kernel_version}}/$ALL_DEB
-          wget -nv http://mirrors.kernel.org/ubuntu/pool/main/g/glibc/libc6_2.38-1ubuntu6_amd64.deb
           echo "KVER=$(echo $ALL_DEB | cut -d '_' -f 2 | rev | cut -c14- | rev)-generic" >> $GITHUB_ENV
-      - name: Set up GCC
-        if: steps.check_version.outputs.skip_build == 'False'
-        uses: egor-tensin/setup-gcc@v1
-        with:
-          version: ${{matrix.gcc_version }}
       - name: install deb packages
-        if: steps.check_version.outputs.skip_build == 'False'
         run: sudo dpkg --force-all -i *.deb
+      - name: update GCC
+        run: |
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 14
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 14
       - uses: actions/checkout@v2
-        if: steps.check_version.outputs.skip_build == 'False'
-      - name: build kernel ${{ matrix.kernel_version }} - GCC ${{ matrix.gcc_version }}
-        if: steps.check_version.outputs.skip_build == 'False'
+      - name: build kernel ${{ matrix.kernel_version }}
         run: make KVER=$KVER CC=cc
